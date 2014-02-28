@@ -1,7 +1,7 @@
 # some directories
-"IMGT Condensed/"
-"compile IMGT Mutation/"
-"compile IMGT Summary/"
+IMGT Condensed
+compile IMGT Mutation
+compile IMGT Summary
 
 # R
 .Rhistory
