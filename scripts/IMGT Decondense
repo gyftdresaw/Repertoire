@@ -1,0 +1,17 @@
+''' this program will take a IMGT file, and will uncompress the FASTA compression introduced earlier'''
+
+
+# list1 = [('O1-SP', 8), ('O1-THY', 8), ('Y1-SP', 7), ('Y1-THY', 8), ('O2-SP', 8), ('O2-THY', 3), ('Y2-SP', 8), ('Y2-THY', 7), ('O3-SP', 5), ('O3-THY', 5), ('Y3-SP', 7), ('Y3-THY', 4), ('O4-SP', 12), ('O4-THY', 7), ('Y4-SP', 8), ('Y4-THY', 7), ('O5-SP', 8), ('O5-THY', 7), ('Y5-SP', 9), ('Y5-THY', 7)]
+list1 = [('O1_SP' , 8)]
+for item in list1:
+    file1 = open('/Users/haochuhuang/Documents/Jason Perera/3H9 BCR HTS Sequencing/DC IMGT Summary/' + item[0] +'.txt', 'w')
+    file2 = open('/Users/haochuhuang/Documents/Jason Perera/3H9 BCR HTS Sequencing/ALL IMGT/' + item[0] + '_C-' + str(1) + '/1_Summary_'+ item[0] + '_C-' + str(1) + '_091113.txt', 'r')
+    for line in file2:
+        file1.write(line)
+    file2.close()    
+    for i in range(2, item[1]+1):
+        file2 = open('/Users/haochuhuang/Documents/Jason Perera/3H9 BCR HTS Sequencing/ALL IMGT/' + item[0] + '_C-' + str(i) + '/1_Summary_'+ item[0] + '_C-' + str(i) + '_091113.txt', 'r')
+        for line in file2:
+            file1.write(line)
+        file2.close()
+    file1.close()        
