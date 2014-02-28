@@ -73,5 +73,17 @@ g
 
 ggsave('plots/ranks.png')
 
+# heatmap
+# for a reasonable color scheme
+library(gplots)
+library(RColorBrewer)
+bluescale = colorRampPalette(brewer.pal(9,"Blues"))(100)
+# use count matrix to generate some heatmaps and things
+cmat = sqrt(counts.df) # square root transform
+ccor = cor(cmat)
 
+pre = ''
+png(paste('plots/',pre,'all_present_heatmap.png',sep=''))
+heatmap.2(ccor,Colv='Rowv',trace='none',density.info='none',col=bluescale)
+dev.off()
 

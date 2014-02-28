@@ -88,7 +88,7 @@ y_tt = topTable(fit2,coef='SPvsTHYinY',number=Inf,adjust='fdr')
 filename = paste('lists/','SPvsTHYinY_limma_top.txt',sep='')
 write.table(y_tt,file=filename,row.names=FALSE,sep='\t')
 
-#4pl specific
+# old specific
 o_tt = topTable(fit2,coef='SPvsTHYinO',number=Inf,adjust='fdr')
 
 filename = paste('lists/','SPvsTHYinO_limma_top.txt',sep='')
