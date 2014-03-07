@@ -129,4 +129,79 @@ lookup = function(rank,tt,IMGT.df){
   return(IMGT.df[vf&jf&cf,])
 }
 
+############################
+# Switched vs Not Switched #
+############################
+
+switch.df = read.table("IMGT Combined/combined_switched_022614.txt",header=TRUE,stringsAsFactors=FALSE,sep='\t')
+switch.df = switch.df[c(1:3,24:29)]
+switch_presence = apply(switch.df[-(1:3)],1,sum) != 0
+switch.df = switch.df[switch_presence,]
+
+switch_counts.df = switch.df[-(1:3)] # without labels
+
+# labeling the sample groups/types
+types = c(rep('NS',3),rep('SW',3))
+
+# data normalization 
+# first construct a DGEList to contain the count/annotation information
+gene_info = switch.df[1:3]
+
+# we're going to filter right here
+# only keep things that have reads in more than 5 samples
+presence = apply(switch_counts.df > 0,1,sum)
+
+# new filtered data
+# only 1304 genes left
+fcounts.df = switch_counts.df[presence > 3,]
+fgene_info = gene_info[presence > 3,]
+
+
+dge_data = DGEList(counts=fcounts.df,genes=fgene_info)
+# normalize this dge data
+# method is 'TMM', supposedly accounting for
+# composition differences in RNAseq (overrepresentation of some samples?)
+# seems to assume that a majority of genes are not differentially expressed
+# which is not necessarily true in this context
+# (maybe should just use simple good turing estimation instead of normalization?)
+dge_data = calcNormFactors(dge_data)
+
+# create appropriate design matrix
+# we're going to try to keep all the coefficients as explicit as possible
+design = model.matrix(~0+factor(types))
+colnames(design) = levels(factor(types))
+
+# transform to logCPM (log counts per million)
+# should be log2, calculated with offset of 0.5 
+# which is arbitrary but probably something reasonable to do
+logCPM_data = voom(dge_data,design,plot=TRUE)
+# whether or not the data was normalized as above doesn't 
+# really change the mean-variance trend, which doesn't look so great
+# the trend should really decrease and then level off at higher counts
+# but seems to increase artificially because of the low counts and then
+# decrease slowly at higher counts.
+#
+# this looks slightly better behave with presence > 5
+
+# pairs on logCPM_data doesn't look too different from pairs
+# directly on log'd count data or the sgt proportions
+
+
+# fit linear model using this individual duplicate correlation
+fit = lmFit(logCPM_data, design)
+
+# construct contrast matrix for comparisons
+cont.matrix = makeContrasts(SWvsNS = SW - NS,
+                            levels = design)
+
+fit2 = contrasts.fit(fit,cont.matrix)
+fit2 = eBayes(fit2)
+
+# generate some lists of things
+# young specific
+switch_tt = topTable(fit2,coef='SWvsNS',number=Inf,adjust='fdr')
+
+filename = paste('lists/','SWvsNS_limma_top.txt',sep='')
+write.table(switch_tt,file=filename,row.names=FALSE,sep='\t')
+
 
